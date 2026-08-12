@@ -1,0 +1,8 @@
+bk-sh-files/
+*.swp
+*.swo
+*.txt
+!.versions_bucellarii.txt
+*.sh
+!bucellarii-updater.sh
+*tar.gz
