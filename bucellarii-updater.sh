@@ -125,7 +125,13 @@ handle_checkupdate() {
 }
 
 save_bucellariiscript_toscriptfolder() {
-    # Move to destination (adjust path as needed)
+    local script_dir="$1"
+    local programname="$2"
+    local temp_script="$3"
+    local fileversions="$4"
+    local github_ver="$5"
+
+    # Move to destination
     local dest_path="${script_dir}/${programname}"
     mv "$temp_script" "$dest_path"
     chmod u+x "$dest_path"
