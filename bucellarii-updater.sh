@@ -8,8 +8,9 @@
 #   Then, tachibana calls this script again and tells it to update tachibana. Then, updater compares the local tachibana
 #   version with the one from github and downloads the file if an update is possible
 
-fileversions=".versions_bucellarii"
 updatername="bucellariiupdater"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+fileversions="${script_dir}/.versions_bucellarii.txt"
 
 # Configuration: Map program names to their GitHub URLs
 declare -A PROGRAMS=(
@@ -18,8 +19,14 @@ declare -A PROGRAMS=(
     # Format: [name]="script_url|versions_url"
 )
 
-fileversions="${HOME}/.versions_bucellarii.txt"
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Takes a program `tag' (such as tachibana or bucellariiupdater)
+#   and returns the script's filename (this includes the extension,
+#   as this information is needed for the downloading function)
+getprogramfilename() {
+    local programname="$1"
+    local url="${PROGRAMS[$programname]%%|*}"  # Get first URL (before the |)
+    basename "$url"                            # Extract filename
+}
 
 # Download with 20-second timeout
 download_with_timeout() {
@@ -132,7 +139,7 @@ save_bucellariiscript_toscriptfolder() {
     local github_ver="$5"
 
     # Move to destination
-    local dest_path="${script_dir}/${programname}"
+    local dest_path="${script_dir}/$(getprogramfilename "$programname")"
     mv "$temp_script" "$dest_path"
     chmod u+x "$dest_path"
 

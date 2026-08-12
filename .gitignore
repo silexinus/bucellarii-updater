@@ -1,4 +1,5 @@
 bk-sh-files/
+tmp/
 *.swp
 *.swo
 *.txt
