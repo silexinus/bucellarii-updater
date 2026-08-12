@@ -13,10 +13,10 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 fileversions="${script_dir}/.versions_bucellarii.txt"
 
 # Configuration: Map program names to their GitHub URLs
+# Format: [name]="script_url|versions_url"
 declare -A PROGRAMS=(
     [bucellariiupdater]="https://raw.githubusercontent.com/silexinus/bucellarii-updater/main/bucellarii-updater.sh|https://raw.githubusercontent.com/silexinus/bucellarii-updater/main/.versions_bucellarii.txt"
     [tachibana]="https://raw.githubusercontent.com/silexinus/tachibana/main/tachibana.sh|https://raw.githubusercontent.com/silexinus/tachibana/main/.versions_bucellarii.txt"
-    # Format: [name]="script_url|versions_url"
 )
 
 # Takes a program `tag' (such as tachibana or bucellariiupdater)
@@ -24,6 +24,9 @@ declare -A PROGRAMS=(
 #   as this information is needed for the downloading function)
 getprogramfilename() {
     local programname="$1"
+    echo "hehe"
+    echo $programname
+    declare -gA PROGRAMS
     local url="${PROGRAMS[$programname]%%|*}"  # Get first URL (before the |)
     basename "$url"                            # Extract filename
 }
@@ -137,9 +140,12 @@ save_bucellariiscript_toscriptfolder() {
     local temp_script="$3"
     local fileversions="$4"
     local github_ver="$5"
+    echo "minitest3"
+    echo "$programname"
 
     # Move to destination
     local dest_path="${script_dir}/$(getprogramfilename "$programname")"
+    echo "minitest4"
     mv "$temp_script" "$dest_path"
     chmod u+x "$dest_path"
 
@@ -155,7 +161,10 @@ save_bucellariiscript_toscriptfolder() {
     # Add new entry
     echo "$programname $github_ver" >> "$fileversions"
 
-    echo "Successfully updated $programname to version $github_ver"
+    # Only print this for programs other than bucellarii-updater
+    if [[ "$programname" != "bucellariiupdater" ]]; then
+        echo "Successfully updated $programname to version $github_ver"
+    fi
     return 0
 }
 
@@ -222,20 +231,32 @@ handle_selfupdate() {
     local temp_script=$(mktemp)
     local urls="${PROGRAMS[$updatername]}"
     local script_url="${urls%|*}"
+    local versions_url="${urls##*|}"
+    echo $script_url
+    echo "AA"
     if ! download_with_timeout "$script_url" "$temp_script" 20; then
         echo -e "ERROR! Failed to download updater script from GitHub.\nCheck your connection and try again." >&2
         rm -f "$temp_script"
         return 1
     fi
+    echo "minitest"
+    echo "$versions_url"
 
     # Get GitHub version
-    local github_ver=$(get_github_version "$programname" "$versions_url")
+    local github_ver=$(get_github_version "$updatername" "$versions_url")
     if [[ $? -ne 0 ]]; then
-        echo "ERROR! Could not reach GitHub to check version." >&2
+        echo "ERROR! Could not reach GitHub." >&2
         return 1
     fi
+    echo "minitest2"
 
-    save_bucellariiscript_toscriptfolder "$script_dir" "$programname" "$temp_script" "$fileversions" "$github_ver"
+echo "$script_dir"
+echo "$updatername"
+echo "$temp_script"
+echo "$fileversions"
+echo "$github_ver"
+
+    save_bucellariiscript_toscriptfolder "$script_dir" "$updatername" "$temp_script" "$fileversions" "$github_ver"
     return 0
 }
 
