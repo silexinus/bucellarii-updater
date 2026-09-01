@@ -17,6 +17,7 @@ fileversions="${script_dir}/.versions_bucellarii.txt"
 declare -A PROGRAMS=(
     [bucellariiupdater]="https://raw.githubusercontent.com/silexinus/bucellarii-updater/main/bucellarii-updater.sh|https://raw.githubusercontent.com/silexinus/bucellarii-updater/main/.versions_bucellarii.txt"
     [tachibana]="https://raw.githubusercontent.com/silexinus/tachibana/main/tachibana.sh|https://raw.githubusercontent.com/silexinus/tachibana/main/.versions_bucellarii.txt"
+    [bynneops]="https://raw.githubusercontent.com/silexinus/bynneops/main/bynneops.jl|https://raw.githubusercontent.com/silexinus/bynneops/main/.versions_bucellarii.txt"
 )
 
 # Takes a program `tag' (such as tachibana or bucellariiupdater)
@@ -105,7 +106,7 @@ get_github_version() {
 }
 
 # Check version without updating
-handle_checkupdate() {
+handle_compareversion() {
     local programname="$1"
 
     if [[ -z "${PROGRAMS[$programname]}" ]]; then
@@ -118,9 +119,10 @@ handle_checkupdate() {
 
     local local_ver=$(get_local_version "$programname")
     if [[ "$local_ver" == "NOT_FOUND" ]]; then
-        echo "Local version: NOT INSTALLED"
+        # Extra space on these so the local semver value is aligned with the github one
+        echo "Local version:  NOT INSTALLED"
     else
-        echo "Local version: $local_ver"
+        echo "Local version:  $local_ver"
     fi
 
     local github_ver=$(get_github_version "$programname" "$versions_url")
@@ -180,7 +182,7 @@ handle_update() {
     # Get GitHub version
     local github_ver=$(get_github_version "$programname" "$versions_url")
     if [[ $? -ne 0 ]]; then
-        echo "ERROR! Could not reach GitHub to check version." >&2
+        echo "ERROR! Could not reach GitHub to compare version." >&2
         return 1
     fi
 
@@ -247,10 +249,10 @@ handle_selfupdate() {
 main() {
     if [[ $# -lt 1 ]]; then
         cat >&2 << EOF
-Usage: $0 [--check-update|--update|--self-update] <program_name>
+Usage: $0 [--compare-version|--update|--self-update] <program_name>
 
 Examples:
-  $0 --check-update tachibana
+  $0 --compare-version tachibana
   $0 --update messerbild
   $0 --self-update
 EOF
@@ -261,12 +263,12 @@ EOF
     local programname="$2"
 
     case "$mode" in
-        --check-update)
+        --compare-version)
             if [[ -z "$programname" ]]; then
-                echo "ERROR! --check-update requires a program name." >&2
+                echo "ERROR! --compare-version requires a program name." >&2
                 return 1
             fi
-            handle_checkupdate "$programname"
+            handle_compareversion "$programname"
             ;;
         --update)
             if [[ -z "$programname" ]]; then

@@ -15,11 +15,14 @@ Updates a bucellarii-class script, such as tachibana:
 
 Displays the local and newest versions of a bucellarii-class script. Let's use messerbild for this example:
 ```
-  $:bucellarii_updater.sh --check-update messerbild
+  $:bucellarii_updater.sh --compare-version messerbild
 ```
 
-## System requirements                                                          
+## System requirements
 * bash
-                                                                                
-## License                                                                      
+
+## License
 GPLv3
+
+## Bucellarii-class programs
+* [tachibana](https://github.com/silexinus/tachibana)
